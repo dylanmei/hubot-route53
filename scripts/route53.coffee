@@ -65,7 +65,8 @@ find_zone_records = (msg, name) ->
         values = (r.Value for r in s.ResourceRecords)
         if values.length == 0 and s.AliasTarget
           values = [s.AliasTarget.DNSName]
-        lines.push "#{s.Name} [#{s.Type}] #{values.join(',')}"
+        lines.push "#{s.Name}"
+        lines.push "#{s.Type}: [#{values.join(', ')}]\n"
       msg.send lines.join('\n')
 
 module.exports = (robot) ->
