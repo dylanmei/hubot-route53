@@ -1,0 +1,21 @@
+{
+  "name": "hubot-route53",
+  "version": "0.0.1",
+  "description": "A Hubot script for interacting with AWS Route53",
+  "author": "Dylan Meissner",
+  "licenses": [
+    { "type": "MIT", "url": "http://github.com/dylanmei/hubot-route53/raw/master/LICENSE" }
+  ],
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hubot",
+    "aws",
+    "route53"
+  ],
+  "dependencies": {
+    "aws-sdk": "2.x.x"
+  }
+}
