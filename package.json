@@ -1,6 +1,6 @@
 {
   "name": "hubot-route53",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Hubot script for interacting with AWS Route53",
   "author": "Dylan Meissner",
   "licenses": [
@@ -15,6 +15,10 @@
     "aws",
     "route53"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dylanmei/hubot-route53.git"
+  },
   "dependencies": {
     "aws-sdk": "2.x.x",
     "glob-to-regexp": "0.0.x"
