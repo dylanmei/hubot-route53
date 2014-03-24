@@ -73,7 +73,7 @@ find_records = (msg, name, filter) ->
         lines.push "#{s.Name}"
         lines.push "#{s.Type}: [#{values.join(', ')}]"
       if lines.length > 0
-        msg.send lines.join('\n')[..-2]
+        msg.send lines.join('\n')
       else if filter
         msg.send "I didn't find any #{name} resources matching the filter"
       else
