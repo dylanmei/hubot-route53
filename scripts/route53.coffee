@@ -17,6 +17,7 @@
 
 AWS  = require 'aws-sdk'
 util = require 'util'
+glob = require 'glob-to-regexp'
 
 config = {
   accessKeyId: process.env.HUBOT_AWS_ACCESS_KEY_ID,
@@ -41,7 +42,7 @@ find_zones = (msg) ->
       lines.push "#{z.Name} with #{z.ResourceRecordSetCount} records"
     msg.send lines.join('\n')
 
-find_zone_records = (msg, name, filter) ->
+find_records = (msg, name, filter) ->
   params = { MaxItems: "50" }
   route53.listHostedZones params, (err, data) ->
     if err?
@@ -64,14 +65,13 @@ find_zone_records = (msg, name, filter) ->
       sets = data.ResourceRecordSets
       if filter
         sets = sets.filter (s) ->
-          test = s.Name[..s.Name.indexOf(zone.Name)-2]
-          test.match(filter)
+          filter.test s.Name[..s.Name.indexOf(zone.Name)-2]
       for s in sets
         values = (r.Value for r in s.ResourceRecords)
         if values.length == 0 and s.AliasTarget
           values = [s.AliasTarget.DNSName]
         lines.push "#{s.Name}"
-        lines.push "#{s.Type}: [#{values.join(', ')}]\n"
+        lines.push "#{s.Type}: [#{values.join(', ')}]"
       if lines.length > 0
         msg.send lines.join('\n')[..-2]
       else if filter
@@ -85,5 +85,5 @@ module.exports = (robot) ->
 
   robot.hear /route53 records ((.+)\.)?([\w\-]+\.[\w-]+).?/, (msg) ->
     name = msg.match[3]
-    filter = new RegExp(msg.match[2], 'i') if msg.match[2]
-    find_zone_records msg, name, filter
+    filter = glob msg.match[2] if msg.match[2]
+    find_records msg, name, filter

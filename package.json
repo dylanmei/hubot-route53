@@ -16,6 +16,7 @@
     "route53"
   ],
   "dependencies": {
-    "aws-sdk": "2.x.x"
+    "aws-sdk": "2.x.x",
+    "glob-to-regexp": "0.0.x"
   }
 }
