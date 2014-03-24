@@ -10,7 +10,7 @@
 #
 # Commands:
 #   hubot route53 zones - Returns hosted zones
-#   hubot route53 <zone> records - Returns a hosted zone's resource records
+#   hubot route53 records <filter.?><zone> - Returns a hosted zone's resource records
 #
 # Author:
 #   dylanmei
@@ -41,7 +41,7 @@ find_zones = (msg) ->
       lines.push "#{z.Name} with #{z.ResourceRecordSetCount} records"
     msg.send lines.join('\n')
 
-find_zone_records = (msg, name) ->
+find_zone_records = (msg, name, filter) ->
   params = { MaxItems: "50" }
   route53.listHostedZones params, (err, data) ->
     if err?
@@ -50,7 +50,7 @@ find_zone_records = (msg, name) ->
     zones = data.HostedZones
     matches = zones.filter (z) -> z.Name.indexOf(name) == 0
     if matches.length == 0
-      msg.send "I couldn't find a zone named #{name}"
+      msg.send "I didn't find a zone named #{name}"
       return
     zone = matches[0]
     params =
@@ -61,19 +61,29 @@ find_zone_records = (msg, name) ->
         msg.send util.inspect(err)
         return
       lines = []
-      for s in data.ResourceRecordSets
+      sets = data.ResourceRecordSets
+      if filter
+        sets = sets.filter (s) ->
+          test = s.Name[..s.Name.indexOf(zone.Name)-2]
+          test.match(filter)
+      for s in sets
         values = (r.Value for r in s.ResourceRecords)
         if values.length == 0 and s.AliasTarget
           values = [s.AliasTarget.DNSName]
         lines.push "#{s.Name}"
         lines.push "#{s.Type}: [#{values.join(', ')}]\n"
-      msg.send lines.join('\n')
+      if lines.length > 0
+        msg.send lines.join('\n')[..-2]
+      else if filter
+        msg.send "I didn't find any #{name} resources matching the filter"
+      else
+        msg.send "I didn't find any #{name} resources"
 
 module.exports = (robot) ->
   robot.hear /route53 zones/i, (msg) ->
     find_zones msg
 
-  robot.hear /route53 ([\w\.]+) records/, (msg) ->
-    name = msg.match[1]
-    find_zone_records msg, name
-
+  robot.hear /route53 records ((.+)\.)?([\w\-]+\.[\w-]+).?/, (msg) ->
+    name = msg.match[3]
+    filter = new RegExp(msg.match[2], 'i') if msg.match[2]
+    find_zone_records msg, name, filter
