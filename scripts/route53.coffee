@@ -67,17 +67,22 @@ find_records = (msg, name, filter) ->
         sets = sets.filter (s) ->
           filter.test s.Name[..s.Name.indexOf(zone.Name)-2]
       for s in sets
-        values = (r.Value for r in s.ResourceRecords)
-        if values.length == 0 and s.AliasTarget
-          values = [s.AliasTarget.DNSName]
-        lines.push "#{s.Name}"
-        lines.push "#{s.Type}: [#{values.join(', ')}]"
+        lines.push describe_record_set(s)
       if lines.length > 0
         msg.send lines.join('\n')
       else if filter
         msg.send "I didn't find any #{name} resources matching the filter"
       else
         msg.send "I didn't find any #{name} resources"
+
+describe_record_set = (set) ->
+  values = (r.Value for r in set.ResourceRecords)
+  if values.length == 0 and set.AliasTarget
+    values = [set.AliasTarget.DNSName]
+  if values.length == 1
+    "#{set.Name} has #{set.Type} record #{values[0]}"
+  else
+    "#{set.Name} has #{set.Type} records #{values.join(', ')}"
 
 module.exports = (robot) ->
   robot.hear /route53 zones/i, (msg) ->
