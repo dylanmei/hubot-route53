@@ -1,6 +1,6 @@
 {
   "name": "hubot-route53",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Hubot script for interacting with AWS Route53",
   "author": "Dylan Meissner",
   "licenses": [
